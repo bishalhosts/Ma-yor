@@ -260,12 +260,23 @@ function validDate_(value) {
     new Date(value + "T00:00:00Z").toISOString().slice(0, 10) === value
   );
 }
+function isPublished_(value) {
+  return (
+    value === true ||
+    value === 1 ||
+    ["true", "yes", "y", "1", "published"].indexOf(
+      String(value || "")
+        .trim()
+        .toLowerCase(),
+    ) > -1
+  );
+}
 function publicContent_(e) {
   const projects = contentSheet_(PROJECT_TAB, PROJECT_HEADERS)
     .getDataRange()
     .getValues()
     .slice(1)
-    .filter((r) => r[0] && r[10] === true)
+    .filter((r) => r[0] && isPublished_(r[10]))
     .map((r) => ({
       t: String(r[1]),
       d: String(r[2]),
@@ -282,7 +293,7 @@ function publicContent_(e) {
     .getDataRange()
     .getValues()
     .slice(1)
-    .filter((r) => r[0] && r[5] === true)
+    .filter((r) => r[0] && isPublished_(r[5]))
     .map((r) => ({
       id: String(r[0]),
       title: String(r[1]),
@@ -295,7 +306,7 @@ function publicContent_(e) {
     .getDataRange()
     .getValues()
     .slice(1)
-    .filter((r) => r[0] && r[4] === true)
+    .filter((r) => r[0] && isPublished_(r[4]))
     .map((r) => ({
       id: String(r[0]),
       title: String(r[1]),
