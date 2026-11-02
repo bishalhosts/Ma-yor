@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><base target="_top"><meta charset="utf-8"><style>
+body{font-family:Arial,sans-serif;margin:0;background:#fdf0f4}header{background:#b83a5e;color:#fff;padding:12px 18px}main{padding:16px}
+.st{display:flex;gap:10px;flex-wrap:wrap}.b{background:#fff;padding:10px 16px;border-top:4px solid #8f2646;border-radius:4px}.b b{font-size:1.5rem;display:block}
+.f{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}input,select,textarea,button{padding:8px;font:inherit}button{background:#8f2646;color:#fff;border:0;border-radius:4px;cursor:pointer}
+table{border-collapse:collapse;width:100%;background:#fff}td,th{border-bottom:1px solid #ddd;padding:6px;text-align:left;font-size:.9rem;vertical-align:top}tr.r{cursor:pointer}tr.r:hover{background:#fbe3ea}
+#d{background:#fff;padding:14px;margin-top:14px;border-left:5px solid #b83a5e;display:none}#d textarea{width:100%}.an{display:flex;gap:20px;flex-wrap:wrap}.an div{background:#fff;padding:10px;min-width:220px}
+.bar{background:#b83a5e;color:#fff;margin:2px 0;padding:1px 6px;font-size:.8rem;white-space:nowrap}@media print{.f,#d,button{display:none}}</style></head><body>
+<header><h2 style="margin:0">Nagarik Voice – Admin Dashboard</h2></header><main>
+<div class="st" id="st">Loading…</div>
+<div class="f"><input id="q" placeholder="Search"><select id="fw"><option value="">All wards</option></select><select id="fc"><option value="">All categories</option></select><select id="fs"><option value="">All status</option></select><input type="date" id="fd"><button onclick="csv()">Download CSV</button><button onclick="print()">Print</button></div>
+<table><thead><tr><th>ID</th><th>Date</th><th>Ward</th><th>Category</th><th>Status</th><th>Message</th></tr></thead><tbody id="tb"></tbody></table>
+<div id="d"></div><h3>Analytics</h3><div class="an" id="an"></div></main>
+<script>
+let D=[],S=['New','Under Review','In Progress','Resolved','Rejected'];const $=i=>document.getElementById(i);
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+google.script.run.withFailureHandler(e=>$('st').textContent='Error: '+e.message).withSuccessHandler(r=>{D=r;init();draw()}).adminList();
+function init(){[...new Set(D.map(x=>x.ward))].sort((a,b)=>a-b).forEach(v=>$('fw').add(new Option('Ward '+v,v)));[...new Set(D.map(x=>x.cat))].forEach(v=>$('fc').add(new Option(v,v)));S.forEach(v=>$('fs').add(new Option(v,v)));['q','fw','fc','fs','fd'].forEach(i=>$(i).oninput=draw)}
+function flt(){const q=$('q').value.toLowerCase();return D.filter(x=>(!q||JSON.stringify(x).toLowerCase().includes(q))&&(!$('fw').value||x.ward==$('fw').value)&&(!$('fc').value||x.cat==$('fc').value)&&(!$('fs').value||x.status==$('fs').value)&&(!$('fd').value||x.ts.slice(0,10)==$('fd').value))}
+function cnt(a,k){const m={};a.forEach(x=>{m[x[k]]=(m[x[k]]||0)+1});return m}
+function bars(t,m){const mx=Math.max(1,...Object.values(m));return '<div><b>'+t+'</b>'+Object.entries(m).map(([k,v])=>'<div class="bar" style="width:'+(v/mx*100)+'%">'+E(k)+' ('+v+')</div>').join('')+'</div>'}
+function draw(){const L=flt(),c=cnt(D,'status');
+ $('st').innerHTML=[['Total',D.length],['New',c['New']||0],['Pending (Under Review/In Progress)',(c['Under Review']||0)+(c['In Progress']||0)],['Reviewed',D.length-(c['New']||0)],['Resolved',c['Resolved']||0]].map(x=>'<div class="b"><b>'+x[1]+'</b>'+x[0]+'</div>').join('');
+ $('tb').innerHTML=L.map(x=>'<tr class="r" onclick="show('+x.row+')"><td>'+E(x.id)+'</td><td>'+E(x.ts.slice(0,10))+'</td><td>'+E(x.ward)+'</td><td>'+E(x.cat)+'</td><td>'+E(x.status)+'</td><td>'+E(String(x.msg).slice(0,80))+'</td></tr>').join('');
+ const mo={};L.forEach(x=>{const k=x.ts.slice(0,7);mo[k]=(mo[k]||0)+1});const w={};String(L.map(x=>x.msg).join(' ')).toLowerCase().split(/\s+/).filter(t=>t.length>4).forEach(t=>w[t]=(w[t]||0)+1);
+ const top=Object.fromEntries(Object.entries(w).sort((a,b)=>b[1]-a[1]).slice(0,8));
+ $('an').innerHTML=bars('By ward',cnt(L,'ward'))+bars('By category',cnt(L,'cat'))+bars('By month',mo)+bars('Frequent words',top)}
+function show(r){const x=D.find(y=>y.row==r);const d=$('d');d.style.display='block';
+ d.innerHTML='<b>'+E(x.id)+'</b> · Ward '+E(x.ward)+' · '+E(x.cat)+'<br><small>From: '+E(x.name)+' · Contact: '+E(x.contact||'-')+' · '+E(x.ts)+'</small><p style="white-space:pre-wrap">'+E(x.msg)+'</p><select id="ns">'+S.map(s=>'<option'+(s==x.status?' selected':'')+'>'+s+'</option>').join('')+'</select><textarea id="nn" rows="3" placeholder="Private admin notes (required if Rejected)">'+E(x.notes)+'</textarea><button onclick="save('+r+')">Save</button> <span id="ms"></span>';d.scrollIntoView()}
+function save(r){const s=$('ns').value,n=$('nn').value;google.script.run.withFailureHandler(e=>$('ms').textContent=e.message).withSuccessHandler(()=>{const x=D.find(y=>y.row==r);x.status=s;x.notes=n;$('ms').textContent='Saved ✔';draw()}).adminUpdate(r,s,n)}
+function csv(){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const rows=[['ID','Timestamp','Name','Ward','Category','Message','Contact','Anonymous','Status','Notes']].concat(flt().map(x=>[x.id,x.ts,x.name,x.ward,x.cat,x.msg,x.contact,x.anon,x.status,x.notes]));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}));a.download='feedback.csv';a.click()}
+</script></body></html>
