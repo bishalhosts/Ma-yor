@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Citizen Voice – Mayor Official Website</title>
+    <meta name="description" content="Official website of the Mayor (demo)" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <main id="main">
+      <section>
+        <div class="wrap" style="max-width: 700px">
+          <h1 data-i18n="feedback"></h1>
+          <p>
+            Tell the Mayor's office what you think. Write in Nepali or English.
+            Please do not share private details you don't want officials to
+            read.
+          </p>
+          <form id="fbForm" novalidate>
+            <label for="name" data-i18n="f_name"></label
+            ><input id="name" name="name" maxlength="80" autocomplete="name" />
+            <label for="ward" data-i18n="f_ward"></label
+            ><select id="ward" name="ward">
+              <option value="">--</option>
+            </select>
+            <div class="err" data-err="ward"></div>
+            <label for="category" data-i18n="f_cat"></label
+            ><select id="category" name="category">
+              <option value="">--</option>
+              <option>Complaint</option>
+              <option>Suggestion</option>
+              <option>Appreciation</option>
+              <option>General Feedback</option>
+              <option>Public Service Problem</option>
+              <option>Development-related Feedback</option>
+            </select>
+            <div class="err" data-err="category"></div>
+            <label for="message" data-i18n="f_msg"></label
+            ><textarea
+              id="message"
+              name="message"
+              rows="6"
+              placeholder="नेपाली वा English मा लेख्नुहोस्"
+            ></textarea
+            ><small id="cnt">0/1000</small>
+            <div class="err" data-err="message"></div>
+            <label for="contact" data-i18n="f_contact"></label
+            ><input id="contact" name="contact" maxlength="100" />
+            <div class="err" data-err="contact"></div>
+            <label
+              ><input
+                type="checkbox"
+                id="anonymous"
+                name="anonymous"
+                style="width: auto" />
+              <span data-i18n="f_anon"></span
+            ></label>
+            <input
+              class="hp"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+            />
+            <p>
+              <button class="btn" name="send" type="submit">
+                <span data-i18n="send"></span><span class="spin">⏳</span>
+              </button>
+            </p>
+            <div id="fbOut" role="status"></div>
+          </form>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/vendor/nepali-date-converter.umd.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/feedback.js"></script>
+  </body>
+</html>

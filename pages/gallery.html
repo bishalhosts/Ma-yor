@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gallery – Mayor Official Website</title>
+    <meta name="description" content="Official website of the Mayor (demo)" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <main id="main">
+      <section>
+        <div class="wrap"><h1>Photo Gallery</h1></div>
+      </section>
+      <section class="alt">
+        <div class="wrap">
+          <label class="gallery-filter" for="galleryAlbum">Album</label
+          ><select
+            id="galleryAlbum"
+            aria-label="Filter photos by album"
+          ></select>
+          <div class="gal" data-render="gallery"></div>
+          <nav
+            id="galleryPagination"
+            class="gallery-pagination"
+            aria-label="Gallery pages"
+          ></nav>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/vendor/nepali-date-converter.umd.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/gallery.js"></script>
+  </body>
+</html>

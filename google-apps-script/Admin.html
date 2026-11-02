@@ -1,32 +1,1017 @@
-<!DOCTYPE html><html><head><base target="_top"><meta charset="utf-8"><style>
-body{font-family:Arial,sans-serif;margin:0;background:#fdf0f4}header{background:#b83a5e;color:#fff;padding:12px 18px}main{padding:16px}
-.st{display:flex;gap:10px;flex-wrap:wrap}.b{background:#fff;padding:10px 16px;border-top:4px solid #8f2646;border-radius:4px}.b b{font-size:1.5rem;display:block}
-.f{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}input,select,textarea,button{padding:8px;font:inherit}button{background:#8f2646;color:#fff;border:0;border-radius:4px;cursor:pointer}
-table{border-collapse:collapse;width:100%;background:#fff}td,th{border-bottom:1px solid #ddd;padding:6px;text-align:left;font-size:.9rem;vertical-align:top}tr.r{cursor:pointer}tr.r:hover{background:#fbe3ea}
-#d{background:#fff;padding:14px;margin-top:14px;border-left:5px solid #b83a5e;display:none}#d textarea{width:100%}.an{display:flex;gap:20px;flex-wrap:wrap}.an div{background:#fff;padding:10px;min-width:220px}
-.bar{background:#b83a5e;color:#fff;margin:2px 0;padding:1px 6px;font-size:.8rem;white-space:nowrap}@media print{.f,#d,button{display:none}}</style></head><body>
-<header><h2 style="margin:0">Nagarik Voice – Admin Dashboard</h2></header><main>
-<div class="st" id="st">Loading…</div>
-<div class="f"><input id="q" placeholder="Search"><select id="fw"><option value="">All wards</option></select><select id="fc"><option value="">All categories</option></select><select id="fs"><option value="">All status</option></select><input type="date" id="fd"><button onclick="csv()">Download CSV</button><button onclick="print()">Print</button></div>
-<table><thead><tr><th>ID</th><th>Date</th><th>Ward</th><th>Category</th><th>Status</th><th>Message</th></tr></thead><tbody id="tb"></tbody></table>
-<div id="d"></div><h3>Analytics</h3><div class="an" id="an"></div></main>
-<script>
-let D=[],S=['New','Under Review','In Progress','Resolved','Rejected'];const $=i=>document.getElementById(i);
-const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-google.script.run.withFailureHandler(e=>$('st').textContent='Error: '+e.message).withSuccessHandler(r=>{D=r;init();draw()}).adminList();
-function init(){[...new Set(D.map(x=>x.ward))].sort((a,b)=>a-b).forEach(v=>$('fw').add(new Option('Ward '+v,v)));[...new Set(D.map(x=>x.cat))].forEach(v=>$('fc').add(new Option(v,v)));S.forEach(v=>$('fs').add(new Option(v,v)));['q','fw','fc','fs','fd'].forEach(i=>$(i).oninput=draw)}
-function flt(){const q=$('q').value.toLowerCase();return D.filter(x=>(!q||JSON.stringify(x).toLowerCase().includes(q))&&(!$('fw').value||x.ward==$('fw').value)&&(!$('fc').value||x.cat==$('fc').value)&&(!$('fs').value||x.status==$('fs').value)&&(!$('fd').value||x.ts.slice(0,10)==$('fd').value))}
-function cnt(a,k){const m={};a.forEach(x=>{m[x[k]]=(m[x[k]]||0)+1});return m}
-function bars(t,m){const mx=Math.max(1,...Object.values(m));return '<div><b>'+t+'</b>'+Object.entries(m).map(([k,v])=>'<div class="bar" style="width:'+(v/mx*100)+'%">'+E(k)+' ('+v+')</div>').join('')+'</div>'}
-function draw(){const L=flt(),c=cnt(D,'status');
- $('st').innerHTML=[['Total',D.length],['New',c['New']||0],['Pending (Under Review/In Progress)',(c['Under Review']||0)+(c['In Progress']||0)],['Reviewed',D.length-(c['New']||0)],['Resolved',c['Resolved']||0]].map(x=>'<div class="b"><b>'+x[1]+'</b>'+x[0]+'</div>').join('');
- $('tb').innerHTML=L.map(x=>'<tr class="r" onclick="show('+x.row+')"><td>'+E(x.id)+'</td><td>'+E(x.ts.slice(0,10))+'</td><td>'+E(x.ward)+'</td><td>'+E(x.cat)+'</td><td>'+E(x.status)+'</td><td>'+E(String(x.msg).slice(0,80))+'</td></tr>').join('');
- const mo={};L.forEach(x=>{const k=x.ts.slice(0,7);mo[k]=(mo[k]||0)+1});const w={};String(L.map(x=>x.msg).join(' ')).toLowerCase().split(/\s+/).filter(t=>t.length>4).forEach(t=>w[t]=(w[t]||0)+1);
- const top=Object.fromEntries(Object.entries(w).sort((a,b)=>b[1]-a[1]).slice(0,8));
- $('an').innerHTML=bars('By ward',cnt(L,'ward'))+bars('By category',cnt(L,'cat'))+bars('By month',mo)+bars('Frequent words',top)}
-function show(r){const x=D.find(y=>y.row==r);const d=$('d');d.style.display='block';
- d.innerHTML='<b>'+E(x.id)+'</b> · Ward '+E(x.ward)+' · '+E(x.cat)+'<br><small>From: '+E(x.name)+' · Contact: '+E(x.contact||'-')+' · '+E(x.ts)+'</small><p style="white-space:pre-wrap">'+E(x.msg)+'</p><select id="ns">'+S.map(s=>'<option'+(s==x.status?' selected':'')+'>'+s+'</option>').join('')+'</select><textarea id="nn" rows="3" placeholder="Private admin notes (required if Rejected)">'+E(x.notes)+'</textarea><button onclick="save('+r+')">Save</button> <span id="ms"></span>';d.scrollIntoView()}
-function save(r){const s=$('ns').value,n=$('nn').value;google.script.run.withFailureHandler(e=>$('ms').textContent=e.message).withSuccessHandler(()=>{const x=D.find(y=>y.row==r);x.status=s;x.notes=n;$('ms').textContent='Saved ✔';draw()}).adminUpdate(r,s,n)}
-function csv(){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const rows=[['ID','Timestamp','Name','Ward','Category','Message','Contact','Anonymous','Status','Notes']].concat(flt().map(x=>[x.id,x.ts,x.name,x.ward,x.cat,x.msg,x.contact,x.anon,x.status,x.notes]));
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}));a.download='feedback.csv';a.click()}
-</script></body></html>
+<!doctype html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f3f6fb;
+        color: #17243a;
+      }
+      header {
+        background: #174a9c;
+        color: #fff;
+        padding: 12px 18px;
+      }
+      main {
+        padding: 16px;
+      }
+      .tabs,
+      .stats,
+      .filters,
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .stats .box,
+      .panel,
+      .item {
+        background: #fff;
+        padding: 14px;
+        border-radius: 8px;
+      }
+      .stats .box {
+        border-top: 4px solid #0b347f;
+      }
+      .stats b {
+        font-size: 1.4rem;
+        display: block;
+      }
+      button {
+        padding: 8px 12px;
+        font: inherit;
+        background: #174a9c;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .tabs button.active {
+        background: #0b347f;
+      }
+      .panel {
+        margin-bottom: 16px;
+      }
+      .form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+        max-width: 1000px;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+      }
+      input,
+      select,
+      textarea {
+        padding: 8px;
+        font: inherit;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      textarea {
+        min-height: 90px;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .hint {
+        color: #66515a;
+        font-size: 0.9rem;
+      }
+      .items {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+      }
+      .item {
+        border: 1px solid #d5deeb;
+      }
+      .item img {
+        max-width: 100%;
+        max-height: 160px;
+        object-fit: cover;
+      }
+      .item p {
+        white-space: pre-wrap;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: #fff;
+      }
+      td,
+      th {
+        border-bottom: 1px solid #ddd;
+        padding: 6px;
+        text-align: left;
+        font-size: 0.9rem;
+        vertical-align: top;
+      }
+      #detail {
+        background: #fff;
+        padding: 14px;
+        margin-top: 14px;
+        border-left: 5px solid #174a9c;
+        display: none;
+      }
+      #detail textarea {
+        width: 100%;
+      }
+      .analytics {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .analytics > div {
+        background: #fff;
+        padding: 10px;
+        min-width: 220px;
+      }
+      .bar {
+        background: #174a9c;
+        color: #fff;
+        margin: 2px 0;
+        padding: 1px 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      @media print {
+        .filters,
+        #detail,
+        button,
+        .tabs {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header><h2 style="margin: 0">Nagarik Voice – Admin Dashboard</h2></header>
+    <main>
+      <div class="tabs">
+        <button class="active" onclick="panel('feedbackPanel',this)">
+          Feedback</button
+        ><button onclick="panel('projectsPanel',this)">
+          Projects &amp; Work</button
+        ><button onclick="panel('noticesPanel',this)">Notices</button
+        ><button onclick="panel('galleryPanel',this)">Photo Gallery</button>
+      </div>
+      <section id="feedbackPanel">
+        <div class="stats" id="stats">Loading feedback…</div>
+        <div class="filters">
+          <input id="q" placeholder="Search" /><select id="fw">
+            <option value="">All wards</option></select
+          ><select id="fc">
+            <option value="">All categories</option></select
+          ><select id="fs">
+            <option value="">All status</option></select
+          ><input type="date" id="fd" /><button onclick="csv()">
+            Download CSV</button
+          ><button onclick="print()">Print</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Ward</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="tb"></tbody>
+        </table>
+        <div id="detail"></div>
+        <h3>Feedback analytics</h3>
+        <div class="analytics" id="analytics"></div>
+      </section>
+      <section id="projectsPanel" class="panel" hidden>
+        <h2>Manage projects and work</h2>
+        <p class="hint">
+          Published projects appear on the website. Uploaded photos are shared
+          publicly so visitors can view them.
+        </p>
+        <form id="projectForm" class="form">
+          <input type="hidden" name="id" /><input
+            type="hidden"
+            name="imageId"
+          /><input type="hidden" name="pdfId" />
+          <label
+            >Project title<input name="title" maxlength="160" required /></label
+          ><label
+            >Ward<input name="ward" type="number" min="1" max="33" required
+          /></label>
+          <label
+            >Category<input name="category" maxlength="80" required /></label
+          ><label
+            >Status<select name="status">
+              <option>Planned</option>
+              <option>Ongoing</option>
+              <option>Completed</option>
+            </select></label
+          >
+          <label
+            >Budget<input
+              name="budget"
+              maxlength="80"
+              placeholder="e.g. NPR 2,000,000" /></label
+          ><label>Start date<input name="start" type="date" /></label
+          ><label>End date<input name="end" type="date" /></label>
+          <label
+            >Photo (JPG, PNG, WebP; max 5 MB)<input
+              id="projectPhoto"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+          /></label>
+          <div class="wide">
+            <img
+              id="projectPreview"
+              alt="Project photo preview"
+              hidden
+              style="max-width: 300px; max-height: 180px"
+            /><span id="photoStatus" class="hint"></span>
+          </div>
+          <label
+            >Full project details (PDF, max 10 MB)<input
+              id="projectPdf"
+              type="file"
+              accept="application/pdf,.pdf"
+          /></label>
+          <div class="wide">
+            <span id="projectPdfStatus" class="hint"></span>
+          </div>
+          <label class="wide"
+            >Description<textarea
+              name="description"
+              maxlength="5000"
+              required
+            ></textarea></label
+          ><label
+            ><span
+              ><input name="published" type="checkbox" checked /> Publish on
+              website</span
+            ></label
+          >
+          <div class="wide">
+            <button type="submit">Save project</button>
+            <button type="button" onclick="resetForm('projects')">
+              New project / Clear
+            </button>
+            <span id="projectMessage" role="status"></span>
+          </div>
+        </form>
+        <hr />
+        <div id="projectItems" class="items">Loading projects…</div>
+      </section>
+      <section id="noticesPanel" class="panel" hidden>
+        <h2>Manage notices</h2>
+        <p class="hint">
+          Published notices appear on the public Notices page and homepage.
+        </p>
+        <form id="noticeForm" class="form">
+          <input type="hidden" name="id" /><input type="hidden" name="pdfId" />
+          <label
+            >Notice title<input name="title" maxlength="160" required /></label
+          ><label
+            >Category<input name="category" maxlength="80" required /></label
+          ><label>Date<input name="date" type="date" required /></label>
+          <label
+            >Notice PDF (max 10 MB)<input
+              id="noticePdf"
+              type="file"
+              accept="application/pdf,.pdf"
+          /></label>
+          <div class="wide">
+            <span id="noticePdfStatus" class="hint"></span>
+          </div>
+          <label class="wide"
+            >Details<textarea
+              name="description"
+              maxlength="5000"
+              required
+            ></textarea></label
+          ><label
+            ><span
+              ><input name="published" type="checkbox" checked /> Publish on
+              website</span
+            ></label
+          >
+          <div class="wide">
+            <button type="submit">Save notice</button>
+            <button type="button" onclick="resetForm('notices')">
+              New notice / Clear
+            </button>
+            <span id="noticeMessage" role="status"></span>
+          </div>
+        </form>
+        <hr />
+        <div id="noticeItems" class="items">Loading notices…</div>
+      </section>
+      <section id="galleryPanel" class="panel" hidden>
+        <h2>Manage photo albums</h2>
+        <p class="hint">
+          Create an album name such as “Kathmandu” and choose multiple photos.
+          Each album is also organized as a folder inside the website images
+          folder in Google Drive.
+        </p>
+        <form id="galleryForm" class="form">
+          <input type="hidden" name="id" /><input
+            type="hidden"
+            name="imageId"
+          />
+          <label
+            >Album / folder name<input
+              name="album"
+              maxlength="80"
+              placeholder="e.g. Kathmandu"
+              required /></label
+          ><label
+            >Photo caption<input
+              name="title"
+              maxlength="160"
+              placeholder="e.g. Kathmandu tour"
+              required
+          /></label>
+          <label class="wide"
+            >Photos (JPG, PNG, WebP; up to 5 MB each)<input
+              id="galleryPhotos"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+          /></label>
+          <div class="wide">
+            <img
+              id="galleryPreview"
+              alt="Gallery photo preview"
+              hidden
+              style="max-width: 300px; max-height: 180px"
+            /><span id="galleryMessage" role="status"></span>
+          </div>
+          <label
+            ><span
+              ><input name="published" type="checkbox" checked /> Publish on
+              website</span
+            ></label
+          >
+          <div class="wide">
+            <button type="submit">Save photos / album</button>
+            <button type="button" onclick="resetForm('gallery')">
+              New album / Clear
+            </button>
+          </div>
+        </form>
+        <hr />
+        <div id="galleryItems" class="items">Loading photos…</div>
+      </section>
+    </main>
+    <script>
+      let D = [],
+        S = ["New", "Under Review", "In Progress", "Resolved", "Rejected"],
+        C = { projects: [], notices: [], gallery: [] },
+        projectImageId = "",
+        projectPdfId = "",
+        noticePdfId = "",
+        projectUploading = false,
+        projectPdfUploading = false,
+        noticePdfUploading = false,
+        galleryUploading = false;
+      const $ = (id) => document.getElementById(id);
+      const E = (value) =>
+        String(value == null ? "" : value).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      google.script.run
+        .withFailureHandler(
+          (e) => ($("stats").textContent = "Error: " + e.message),
+        )
+        .withSuccessHandler((rows) => {
+          D = rows;
+          init();
+          draw();
+        })
+        .adminList();
+      function panel(id, button) {
+        document
+          .querySelectorAll("main>section")
+          .forEach((section) => (section.hidden = true));
+        $(id).hidden = false;
+        document
+          .querySelectorAll(".tabs button")
+          .forEach((tab) => tab.classList.remove("active"));
+        button.classList.add("active");
+        if (id !== "feedbackPanel")
+          loadContent(
+            id === "projectsPanel"
+              ? "projects"
+              : id === "noticesPanel"
+                ? "notices"
+                : "gallery",
+          );
+      }
+      function loadContent(type) {
+        const host = $(
+          type === "projects"
+            ? "projectItems"
+            : type === "notices"
+              ? "noticeItems"
+              : "galleryItems",
+        );
+        host.textContent = "Loading…";
+        google.script.run
+          .withFailureHandler((e) => (host.textContent = "Error: " + e.message))
+          .withSuccessHandler((rows) => {
+            C[type] = rows;
+            drawContent(type);
+          })
+          .adminListContent(type);
+      }
+      function init() {
+        [...new Set(D.map((x) => x.ward))]
+          .sort((a, b) => a - b)
+          .forEach((v) => $("fw").add(new Option("Ward " + v, v)));
+        [...new Set(D.map((x) => x.cat))].forEach((v) =>
+          $("fc").add(new Option(v, v)),
+        );
+        S.forEach((v) => $("fs").add(new Option(v, v)));
+        ["q", "fw", "fc", "fs", "fd"].forEach((id) => ($(id).oninput = draw));
+      }
+      function filtered() {
+        const q = $("q").value.toLowerCase();
+        return D.filter(
+          (x) =>
+            (!q || JSON.stringify(x).toLowerCase().includes(q)) &&
+            (!$("fw").value || x.ward == $("fw").value) &&
+            (!$("fc").value || x.cat == $("fc").value) &&
+            (!$("fs").value || x.status == $("fs").value) &&
+            (!$("fd").value || x.ts.slice(0, 10) == $("fd").value),
+        );
+      }
+      function counts(rows, key) {
+        const result = {};
+        rows.forEach((x) => {
+          result[x[key]] = (result[x[key]] || 0) + 1;
+        });
+        return result;
+      }
+      function bars(title, countsByKey) {
+        const max = Math.max(1, ...Object.values(countsByKey));
+        return (
+          "<div><b>" +
+          title +
+          "</b>" +
+          Object.entries(countsByKey)
+            .map(
+              ([key, value]) =>
+                '<div class="bar" style="width:' +
+                (value / max) * 100 +
+                '%">' +
+                E(key) +
+                " (" +
+                value +
+                ")</div>",
+            )
+            .join("") +
+          "</div>"
+        );
+      }
+      function draw() {
+        const rows = filtered(),
+          c = counts(D, "status");
+        $("stats").innerHTML = [
+          ["Total", D.length],
+          ["New", c.New || 0],
+          ["Pending", (c["Under Review"] || 0) + (c["In Progress"] || 0)],
+          ["Reviewed", D.length - (c.New || 0)],
+          ["Resolved", c.Resolved || 0],
+        ]
+          .map((x) => '<div class="box"><b>' + x[1] + "</b>" + x[0] + "</div>")
+          .join("");
+        $("tb").innerHTML = rows
+          .map(
+            (x) =>
+              '<tr onclick="showFeedback(' +
+              x.row +
+              ')" style="cursor:pointer"><td>' +
+              E(x.id) +
+              "</td><td>" +
+              E(x.ts.slice(0, 10)) +
+              "</td><td>" +
+              E(x.ward) +
+              "</td><td>" +
+              E(x.cat) +
+              "</td><td>" +
+              E(x.status) +
+              "</td><td>" +
+              E(String(x.msg).slice(0, 80)) +
+              "</td></tr>",
+          )
+          .join("");
+        const months = {};
+        rows.forEach((x) => {
+          const key = x.ts.slice(0, 7);
+          months[key] = (months[key] || 0) + 1;
+        });
+        const words = {};
+        String(rows.map((x) => x.msg).join(" "))
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((x) => x.length > 4)
+          .forEach((x) => (words[x] = (words[x] || 0) + 1));
+        const top = Object.fromEntries(
+          Object.entries(words)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8),
+        );
+        $("analytics").innerHTML =
+          bars("By ward", counts(rows, "ward")) +
+          bars("By category", counts(rows, "cat")) +
+          bars("By month", months) +
+          bars("Frequent words", top);
+      }
+      function showFeedback(row) {
+        const x = D.find((item) => item.row == row),
+          box = $("detail");
+        box.style.display = "block";
+        box.innerHTML =
+          "<b>" +
+          E(x.id) +
+          "</b> · Ward " +
+          E(x.ward) +
+          " · " +
+          E(x.cat) +
+          "<br><small>From: " +
+          E(x.name) +
+          " · Contact: " +
+          E(x.contact || "-") +
+          " · " +
+          E(x.ts) +
+          '</small><p style="white-space:pre-wrap">' +
+          E(x.msg) +
+          '</p><select id="status">' +
+          S.map(
+            (s) =>
+              "<option" +
+              (s === x.status ? " selected" : "") +
+              ">" +
+              s +
+              "</option>",
+          ).join("") +
+          '</select><textarea id="notes" rows="3" placeholder="Private admin notes (required if Rejected)">' +
+          E(x.notes) +
+          '</textarea><button onclick="saveFeedback(' +
+          row +
+          ')">Save</button> <span id="feedbackMessage"></span>';
+        box.scrollIntoView();
+      }
+      function saveFeedback(row) {
+        const status = $("status").value,
+          notes = $("notes").value;
+        google.script.run
+          .withFailureHandler(
+            (e) => ($("feedbackMessage").textContent = e.message),
+          )
+          .withSuccessHandler(() => {
+            const x = D.find((item) => item.row == row);
+            x.status = status;
+            x.notes = notes;
+            $("feedbackMessage").textContent = "Saved.";
+            draw();
+          })
+          .adminUpdate(row, status, notes);
+      }
+      function csv() {
+        const quote = (v) =>
+            '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"',
+          rows = [
+            [
+              "ID",
+              "Timestamp",
+              "Name",
+              "Ward",
+              "Category",
+              "Message",
+              "Contact",
+              "Anonymous",
+              "Status",
+              "Notes",
+            ],
+          ].concat(
+            filtered().map((x) => [
+              x.id,
+              x.ts,
+              x.name,
+              x.ward,
+              x.cat,
+              x.msg,
+              x.contact,
+              x.anon,
+              x.status,
+              x.notes,
+            ]),
+          );
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob(
+            ["\ufeff" + rows.map((row) => row.map(quote).join(",")).join("\n")],
+            { type: "text/csv" },
+          ),
+        );
+        a.download = "feedback.csv";
+        a.click();
+      }
+      function drawContent(type) {
+        const host = $(
+            type === "projects"
+              ? "projectItems"
+              : type === "notices"
+                ? "noticeItems"
+                : "galleryItems",
+          ),
+          items = C[type];
+        if (!items.length) {
+          host.textContent =
+            "No " + type + " yet. Use the form above to add one.";
+          return;
+        }
+        host.innerHTML = items
+          .map(
+            (x) =>
+              '<article class="item">' +
+              (x.imageId
+                ? '<img src="https://drive.google.com/thumbnail?id=' +
+                  encodeURIComponent(x.imageId) +
+                  '&sz=w600" alt="">'
+                : "") +
+              "<b>" +
+              E(x.title) +
+              "</b>" +
+              (type === "gallery"
+                ? "<p>Album: " + E(x.album) + "</p>"
+                : type === "projects"
+                  ? "<p>" + E(x.description) + "</p>"
+                  : "<p>" + E(x.description) + "</p>") +
+              (x.pdfId
+                ? '<p><a href="https://drive.google.com/uc?export=download&id=' +
+                  encodeURIComponent(x.pdfId) +
+                  '" target="_blank" rel="noopener">Download attached PDF</a></p>'
+                : "") +
+              "<small>" +
+              E(
+                type === "projects"
+                  ? "Ward " + x.ward + " · " + x.category + " · " + x.status
+                  : type === "notices"
+                    ? x.category + " · " + x.date
+                    : x.album,
+              ) +
+              " · " +
+              (x.published ? "Published" : "Draft") +
+              '</small><div class="actions"><button onclick="editContent(\'' +
+              type +
+              "','" +
+              E(x.id) +
+              "')\">Edit</button><button onclick=\"deleteContent('" +
+              type +
+              "','" +
+              E(x.id) +
+              "')\">Delete</button></div></article>",
+          )
+          .join("");
+      }
+      function formFor(type) {
+        return $(
+          type === "projects"
+            ? "projectForm"
+            : type === "notices"
+              ? "noticeForm"
+              : "galleryForm",
+        );
+      }
+      function resetForm(type) {
+        const form = formFor(type);
+        form.reset();
+        form.elements.id.value = "";
+        if (type === "projects") {
+          projectImageId = "";
+          projectPdfId = "";
+          projectUploading = false;
+          projectPdfUploading = false;
+          form.elements.imageId.value = "";
+          form.elements.pdfId.value = "";
+          $("projectPreview").hidden = true;
+          $("photoStatus").textContent = "";
+          $("projectPdfStatus").textContent = "";
+          $("projectPhoto").value = "";
+          $("projectPdf").value = "";
+        } else if (type === "notices") {
+          noticePdfId = "";
+          noticePdfUploading = false;
+          form.elements.pdfId.value = "";
+          $("noticePdfStatus").textContent = "";
+          $("noticePdf").value = "";
+        } else {
+          galleryUploading = false;
+          $("galleryPhotos").disabled = false;
+          $("galleryPreview").hidden = true;
+          $("galleryMessage").textContent = "";
+          $("galleryPhotos").value = "";
+        }
+      }
+      function editContent(type, id) {
+        const item = C[type].find((entry) => entry.id === id);
+        if (!item) return;
+        const form = formFor(type);
+        Object.keys(item).forEach((key) => {
+          if (form.elements[key]) {
+            if (key === "published") form.elements[key].checked = item[key];
+            else form.elements[key].value = item[key];
+          }
+        });
+        if (type === "projects") {
+          projectImageId = item.imageId || "";
+          projectPdfId = item.pdfId || "";
+          $("projectPreview").hidden = !projectImageId;
+          if (projectImageId)
+            $("projectPreview").src =
+              "https://drive.google.com/thumbnail?id=" +
+              encodeURIComponent(projectImageId) +
+              "&sz=w600";
+          $("photoStatus").textContent = projectImageId
+            ? "Current image kept unless a new one is selected."
+            : "";
+          $("projectPdfStatus").textContent = projectPdfId
+            ? "Current PDF kept unless a new one is selected."
+            : "";
+        } else if (type === "notices") {
+          noticePdfId = item.pdfId || "";
+          $("noticePdfStatus").textContent = noticePdfId
+            ? "Current PDF kept unless a new one is selected."
+            : "";
+        } else {
+          $("galleryPhotos").disabled = true;
+          $("galleryMessage").textContent =
+            "Editing photo details. Use New album / Clear to upload more photos.";
+          $("galleryPreview").src =
+            "https://drive.google.com/thumbnail?id=" +
+            encodeURIComponent(item.imageId) +
+            "&sz=w600";
+          $("galleryPreview").hidden = false;
+        }
+        form.scrollIntoView({ behavior: "smooth" });
+      }
+      function saveRow(type, item, message) {
+        message.textContent = "Saving…";
+        google.script.run
+          .withFailureHandler(
+            (error) => (message.textContent = "Error: " + error.message),
+          )
+          .withSuccessHandler(() => {
+            message.textContent = "Saved.";
+            resetForm(type);
+            loadContent(type);
+          })
+          .adminSaveContent(type, item);
+      }
+      function saveGalleryUploads(files, index, item, message) {
+        if (index >= files.length) {
+          message.textContent =
+            "Uploaded and saved " + files.length + " photo(s).";
+          resetForm("gallery");
+          loadContent("gallery");
+          return;
+        }
+        const file = files[index];
+        if (
+          file.size > 5 * 1024 * 1024 ||
+          !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+        ) {
+          galleryUploading = false;
+          message.textContent =
+            "Upload stopped: " +
+            file.name +
+            " must be JPG, PNG, or WebP up to 5 MB.";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => {
+          galleryUploading = false;
+          message.textContent = "Could not read " + file.name;
+        };
+        reader.onload = () =>
+          google.script.run
+            .withFailureHandler((error) => {
+              galleryUploading = false;
+              message.textContent =
+                "Upload failed for " + file.name + ": " + error.message;
+            })
+            .withSuccessHandler((result) => {
+              const record = { ...item, imageId: result.id };
+              google.script.run
+                .withFailureHandler((error) => {
+                  galleryUploading = false;
+                  message.textContent =
+                    "Could not save " + file.name + ": " + error.message;
+                })
+                .withSuccessHandler(() =>
+                  saveGalleryUploads(files, index + 1, item, message),
+                )
+                .adminSaveContent("gallery", record);
+            })
+            .adminUploadGalleryImage(
+              reader.result,
+              file.name,
+              file.type,
+              item.album,
+            );
+        reader.readAsDataURL(file);
+      }
+      function saveContent(event, type) {
+        event.preventDefault();
+        const form = formFor(type),
+          item = Object.fromEntries(new FormData(form).entries());
+        item.published = form.elements.published.checked;
+        const message = $(
+          type === "projects"
+            ? "projectMessage"
+            : type === "notices"
+              ? "noticeMessage"
+              : "galleryMessage",
+        );
+        if (type === "projects") {
+          if (projectUploading || projectPdfUploading) {
+            message.textContent = "Wait for uploads to finish.";
+            return;
+          }
+          item.imageId = projectImageId;
+          item.pdfId = projectPdfId;
+          saveRow(type, item, message);
+          return;
+        }
+        if (type === "notices") {
+          if (noticePdfUploading) {
+            message.textContent = "Wait for the PDF upload to finish.";
+            return;
+          }
+          item.pdfId = noticePdfId;
+          saveRow(type, item, message);
+          return;
+        }
+        if (item.id) {
+          item.imageId = form.elements.imageId.value;
+          saveRow(type, item, message);
+          return;
+        }
+        if (galleryUploading) {
+          message.textContent = "Wait for the current photo uploads to finish.";
+          return;
+        }
+        const files = Array.from($("galleryPhotos").files);
+        if (!files.length) {
+          message.textContent = "Choose at least one photo to upload.";
+          return;
+        }
+        galleryUploading = true;
+        saveGalleryUploads(files, 0, item, message);
+      }
+      document
+        .querySelectorAll(".form")
+        .forEach((form) =>
+          form.addEventListener("submit", (event) =>
+            saveContent(
+              event,
+              form.id === "projectForm"
+                ? "projects"
+                : form.id === "noticeForm"
+                  ? "notices"
+                  : "gallery",
+            ),
+          ),
+        );
+      $("projectPhoto").addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+          $("photoStatus").textContent = "Image must be 5 MB or smaller.";
+          this.value = "";
+          return;
+        }
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+          $("photoStatus").textContent = "Choose a JPG, PNG, or WebP image.";
+          this.value = "";
+          return;
+        }
+        projectUploading = true;
+        $("photoStatus").textContent = "Uploading photo…";
+        const reader = new FileReader();
+        reader.onload = () =>
+          google.script.run
+            .withFailureHandler((e) => {
+              projectUploading = false;
+              $("photoStatus").textContent = "Upload failed: " + e.message;
+            })
+            .withSuccessHandler((result) => {
+              projectUploading = false;
+              projectImageId = result.id;
+              $("projectPreview").src = result.url;
+              $("projectPreview").hidden = false;
+              $("photoStatus").textContent =
+                "Photo uploaded. It will be published when you save this project.";
+            })
+            .adminUploadImage(reader.result, file.name, file.type);
+        reader.onerror = () => {
+          projectUploading = false;
+          $("photoStatus").textContent = "Could not read the selected image.";
+        };
+        reader.readAsDataURL(file);
+      });
+      function uploadPdfInput(inputId, type) {
+        $(inputId).addEventListener("change", function () {
+          const file = this.files[0];
+          if (!file) return;
+          const status = $(
+            type === "projects" ? "projectPdfStatus" : "noticePdfStatus",
+          );
+          if (file.size > 10 * 1024 * 1024) {
+            status.textContent = "PDF must be 10 MB or smaller.";
+            this.value = "";
+            return;
+          }
+          if (file.type !== "application/pdf") {
+            status.textContent = "Choose a PDF document.";
+            this.value = "";
+            return;
+          }
+          if (type === "projects") projectPdfUploading = true;
+          else noticePdfUploading = true;
+          status.textContent = "Uploading PDF…";
+          const reader = new FileReader();
+          reader.onerror = () => {
+            if (type === "projects") projectPdfUploading = false;
+            else noticePdfUploading = false;
+            status.textContent = "Could not read the PDF.";
+          };
+          reader.onload = () =>
+            google.script.run
+              .withFailureHandler((error) => {
+                if (type === "projects") projectPdfUploading = false;
+                else noticePdfUploading = false;
+                status.textContent = "PDF upload failed: " + error.message;
+              })
+              .withSuccessHandler((result) => {
+                if (type === "projects") {
+                  projectPdfUploading = false;
+                  projectPdfId = result.id;
+                } else {
+                  noticePdfUploading = false;
+                  noticePdfId = result.id;
+                }
+                status.textContent =
+                  "PDF uploaded. It will be attached when you save.";
+              })
+              .adminUploadPdf(reader.result, file.name, file.type);
+          reader.readAsDataURL(file);
+        });
+      }
+      uploadPdfInput("projectPdf", "projects");
+      uploadPdfInput("noticePdf", "notices");
+      $("galleryPhotos").addEventListener("change", function () {
+        const files = Array.from(this.files);
+        $("galleryMessage").textContent = files.length
+          ? files.length + " photo(s) selected. Each must be 5 MB or smaller."
+          : "";
+      });
+      function deleteContent(type, id) {
+        if (
+          !confirm(
+            "Delete this " +
+              (type === "projects"
+                ? "project"
+                : type === "notices"
+                  ? "notice"
+                  : "gallery photo") +
+              "?",
+          )
+        )
+          return;
+        google.script.run
+          .withFailureHandler((e) => alert("Delete failed: " + e.message))
+          .withSuccessHandler(() => loadContent(type))
+          .adminDeleteContent(type, id);
+      }
+    </script>
+  </body>
+</html>

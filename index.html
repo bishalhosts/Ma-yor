@@ -1,5 +1,78 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home – Mayor Official Website</title><meta name="description" content="Official website of the Mayor (demo)"><link rel="stylesheet" href="css/style.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap" rel="stylesheet"></head><body><div id="site-header"></div><main id="main"><section><div class="wrap hero"><img src="assets/images/mayor.svg" alt="Photo of the Mayor"><div><p class="tag">Welcome</p><h2 data-mayor></h2><p><strong data-site="title"></strong></p><p>[Short welcome message from the Mayor – to be provided by the office.]</p><div class="btns"><a class="btn" href="feedback.html" data-i18n="submit"></a><a class="btn line" href="mayor.html" data-i18n="viewmore"></a></div></div></div></section>
-<section class="alt"><div class="wrap grid"><a class="card" href="mayor.html"><h3>About the Mayor</h3><p>Biography and message.</p></a><a class="card" href="development.html"><h3>Work &amp; Projects</h3><p>Development activities.</p></a><a class="card" href="notices.html"><h3>Notices</h3><p>Latest announcements.</p></a><a class="card" href="feedback.html"><h3>Citizen Voice</h3><p>Send a complaint or suggestion.</p></a><a class="card" href="contact.html"><h3>Contact</h3><p>Office address and hours.</p></a></div></section>
-<section class=""><div class="wrap"><h2 data-i18n=latest>Latest Notices</h2><div class="grid" data-render="notices" data-n="3"></div></div></section>
-<section class="alt"><div class="wrap"><h2 data-i18n=activities>Work &amp; Projects</h2><div class="grid" data-render="projects" data-n="3"></div><p><a href="development.html">See all projects →</a></p></div></section>
-<section class="cta"><div class="wrap"><h2 data-i18n="invite"></h2><p data-i18n="invite_t"></p><a class="btn" href="feedback.html" data-i18n="submit"></a></div></section></main><div id="site-footer"></div><script src="js/data.js"></script><script src="js/language.js"></script><script src="js/main.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Home – Mayor Official Website</title>
+    <meta name="description" content="Official website of the Mayor (demo)" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <main id="main">
+      <section>
+        <div class="wrap hero home-hero">
+          <img src="assets/images/mayor.svg" alt="Photo of the Mayor" />
+          <div class="home-intro">
+            <p class="tag">Welcome</p>
+            <h2 data-mayor></h2>
+            <p><strong data-site="title"></strong></p>
+            <p>
+              [Short welcome message from the Mayor – to be provided by the
+              office.]
+            </p>
+            <div class="btns">
+              <a class="btn" href="pages/feedback.html" data-i18n="submit"></a
+              ><a
+                class="btn line"
+                href="pages/mayor.html"
+                data-i18n="viewmore"
+              ></a>
+            </div>
+          </div>
+          <aside class="time-calendar" aria-labelledby="calendarHeading">
+            <div class="calendar-head">
+              <div class="calendar-month-labels">
+                <strong id="calendarHeading"></strong
+                ><span>नेपाली पात्रो · वि.सं.</span>
+              </div>
+              <div class="calendar-nav">
+                <button
+                  id="calendarPrev"
+                  type="button"
+                  aria-label="अघिल्लो महिना"
+                >
+                  ‹</button
+                ><button
+                  id="calendarNext"
+                  type="button"
+                  aria-label="अर्को महिना"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+            <div
+              id="calendarGrid"
+              class="calendar-grid"
+              role="grid"
+              aria-label="नेपाली पात्रो"
+            ></div>
+            <p id="calendarToday" class="calendar-today" aria-live="polite"></p>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/vendor/nepali-date-converter.umd.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+  </body>
+</html>

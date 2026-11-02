@@ -1,1 +1,50 @@
-<!DOCTYPE html><html lang="en"><head><base href="../"><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard – Mayor Official Website</title><meta name="description" content="Official website of the Mayor (demo)"><link rel="stylesheet" href="css/style.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap" rel="stylesheet"></head><body><div id="site-header"></div><main id="main"><section><div class="wrap" style="max-width:650px"><h1>Admin Dashboard</h1><p>The admin dashboard runs in <strong>Google Apps Script</strong> and is protected by Google sign-in. Only e-mail addresses listed in <code>ADMIN_EMAILS</code> in <code>Code.gs</code> can open it. No password is stored on this website.</p><p><a class="btn" data-admin-link href="#">Open Secure Admin Dashboard</a></p><p><small>If the button does nothing, set ADMIN_URL in js/data.js (see README).</small></p></div></section></main><div id="site-footer"></div><script src="js/data.js"></script><script src="js/language.js"></script><script src="js/main.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../" />
+    <meta name="robots" content="noindex" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Dashboard – Mayor Official Website</title>
+    <meta name="description" content="Official website of the Mayor (demo)" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <main id="main">
+      <section>
+        <div class="wrap" style="max-width: 650px">
+          <h1>Admin Dashboard</h1>
+          <p>
+            The admin dashboard runs in <strong>Google Apps Script</strong> and
+            is protected by Google sign-in. Only e-mail addresses listed in
+            <code>ADMIN_EMAILS</code> in <code>Code.gs</code> can open it. No
+            password is stored on this website.
+          </p>
+          <p>
+            <a class="btn" data-admin-link href="#"
+              >Open Secure Admin Dashboard</a
+            >
+          </p>
+          <p>
+            <small
+              >If the button does nothing, set ADMIN_URL in js/data.js (see
+              README).</small
+            >
+          </p>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/vendor/nepali-date-converter.umd.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Notices – Mayor Official Website</title>
+    <meta name="description" content="Official website of the Mayor (demo)" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <main id="main">
+      <section>
+        <div class="wrap"><h1>Notices & News</h1></div>
+      </section>
+      <section class="alt">
+        <div class="wrap">
+          <div class="filters">
+            <input
+              id="nQ"
+              placeholder="Search notices"
+              aria-label="Search notices"
+            /><select id="nCat" aria-label="Category">
+              <option value="">All categories</option>
+            </select>
+          </div>
+          <div class="grid" data-render="notices"></div>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/vendor/nepali-date-converter.umd.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+  </body>
+</html>
