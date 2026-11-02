@@ -17,7 +17,7 @@ const SITE = {
   hours: "Sun–Fri, 10:00 AM – 5:00 PM",
   wards: 9,
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby1JSOxlP1FuXM7t96C0zbfsVrLeY10BJwxo1-NNTP2JkC3MlWAsNTywfCD95p4AZixiw/exec", // Deployment A (Anyone)
-  ADMIN_URL: "https://script.google.com/macros/s/AKfycbzHYHHSe-AHv54DTZ63cBG6w2i_knVE7gd91o6ZepP-kekN6N-u64Q_Kne3CJK4fZDw5Q/exec", // Deployment B (Google login, admins only)
+  ADMIN_URL: "https://script.google.com/macros/s/AKfycbzkoV5EatZKXVH5NKgQeIgYK6DA9fJwm-apaFk9PHxdyRG9cF-zhDHxYRUEWlgmVd-Zdw/exec", // Deployment B (Google login, admins only)
   ticker: [
     "Welcome to the official website of the Mayor (demo content).",
     "Citizens can submit complaints and suggestions through Nagarik Voice.",
