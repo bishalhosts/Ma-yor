@@ -16,8 +16,8 @@ const SITE = {
   email: "info@example.gov.np",
   hours: "Sun–Fri, 10:00 AM – 5:00 PM",
   wards: 9,
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyspiRWShF58BKO5xNE_q-Z7MXeJPlrrVWrYefUwEQiBAMEZE8arc7fid3EXar4o6dx1A/exec", // Deployment A (Anyone)
-  ADMIN_URL: "https://script.google.com/macros/s/AKfycbxOY_xHEgmc6FWfBGf1LOonnKGdp5NWndKBf77aFOo_p3w4ooBqnZjnGhOrFoJ4PGVT8g/exec", // Deployment B (Google login, admins only)
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbz9UzTsPtcjK4PCIF_aEjQ1odQNqUaSk7hLKZTXG6SapgOTntWWLnMsiBXKEeaSDhntWw/exec", // Deployment A (Anyone)
+  ADMIN_URL: "https://script.google.com/macros/s/AKfycbyJUMbkWsIpkdBGH-FG0iiX9vflX4sFnz_xPvlhY7dWiCRSuFwDTO9LXt9nRVqZsL1L/exec", // Deployment B (Google login, admins only)
   ticker: [
     "Welcome to the official website of the Mayor (demo content).",
     "Citizens can submit complaints and suggestions through Nagarik Voice.",
