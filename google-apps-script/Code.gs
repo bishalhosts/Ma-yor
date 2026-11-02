@@ -184,13 +184,24 @@ function contentType_(type) {
   throw new Error("Invalid content type.");
 }
 function imageUrl_(id) {
+  id = driveFileId_(id);
   return (
     "https://drive.google.com/thumbnail?id=" +
     encodeURIComponent(id) +
     "&sz=w1200"
   );
 }
+function driveFileId_(value) {
+  const input = String(value || "").trim();
+  if (/^[A-Za-z0-9_-]{10,}$/.test(input)) return input;
+  if (!/^https?:\/\/(?:drive|docs)\.google\.com\//i.test(input))
+    throw new Error("Enter a Google Drive file ID or sharing URL.");
+  const match = input.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{10,})/);
+  if (!match) throw new Error("The Google Drive sharing URL has no file ID.");
+  return match[1];
+}
 function fileUrl_(id) {
+  id = driveFileId_(id);
   return (
     "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(id)
   );
@@ -205,6 +216,7 @@ function galleryAlbumFolder_(album) {
 }
 function mediaFileInFolder_(id, folderId, mimePrefix) {
   if (!id) return false;
+  id = driveFileId_(id);
   const file = DriveApp.getFileById(id);
   if (mimePrefix && file.getMimeType().indexOf(mimePrefix) !== 0)
     throw new Error("Choose a valid " + mimePrefix + " file.");
@@ -214,6 +226,7 @@ function mediaFileInFolder_(id, folderId, mimePrefix) {
   return false;
 }
 function galleryImage_(id, album) {
+  id = driveFileId_(id);
   const file = DriveApp.getFileById(id),
     folder = galleryAlbumFolder_(album),
     parents = file.getParents();
@@ -441,13 +454,13 @@ function adminListContent(type) {
             description: String(r[2]),
             ward: String(r[3]),
             category: String(r[4]),
-            imageId: String(r[5] || ""),
+            imageId: r[5] ? driveFileId_(r[5]) : "",
             budget: String(r[6]),
             start: dateValue_(r[7]),
             end: dateValue_(r[8]),
             status: String(r[9]),
             published: r[10] === true,
-            pdfId: String(r[12] || ""),
+            pdfId: r[12] ? driveFileId_(r[12]) : "",
           }
         : type === "notices"
           ? {
@@ -457,13 +470,13 @@ function adminListContent(type) {
               category: String(r[3]),
               date: dateValue_(r[4]),
               published: r[5] === true,
-              pdfId: String(r[7] || ""),
+              pdfId: r[7] ? driveFileId_(r[7]) : "",
             }
           : {
               id: String(r[0]),
               title: String(r[1]),
               album: String(r[2]),
-              imageId: String(r[3] || ""),
+              imageId: r[3] ? driveFileId_(r[3]) : "",
               published: r[4] === true,
             },
     );
@@ -501,7 +514,7 @@ function adminSaveContent(type, item) {
       throw new Error("Enter a valid project start date.");
     if (item.end && !validDate_(String(item.end)))
       throw new Error("Enter a valid project end date.");
-    const imageId = String(item.imageId || "");
+    const imageId = item.imageId ? driveFileId_(item.imageId) : "";
     if (imageId) {
       const file = DriveApp.getFileById(imageId),
         parents = file.getParents(),
@@ -514,7 +527,7 @@ function adminSaveContent(type, item) {
       if (!inFolder)
         throw new Error("Choose a photo uploaded through this dashboard.");
     }
-    const pdfId = String(item.pdfId || "");
+    const pdfId = item.pdfId ? driveFileId_(item.pdfId) : "";
     if (
       pdfId &&
       !mediaFileInFolder_(pdfId, mediaFolder_().getId(), "application/pdf")
@@ -552,7 +565,7 @@ function adminSaveContent(type, item) {
     )
       throw new Error("Notice category is required (maximum 80 characters).");
     if (!validDate_(date)) throw new Error("Enter a valid notice date.");
-    const pdfId = String(item.pdfId || "");
+    const pdfId = item.pdfId ? driveFileId_(item.pdfId) : "";
     if (
       pdfId &&
       !mediaFileInFolder_(pdfId, mediaFolder_().getId(), "application/pdf")
@@ -571,7 +584,7 @@ function adminSaveContent(type, item) {
   } else if (type === "gallery") {
     const title = String(item.title || "").trim(),
       album = String(item.album || "").trim(),
-      imageId = String(item.imageId || "");
+      imageId = item.imageId ? driveFileId_(item.imageId) : "";
     if (!title || title.length > 160)
       throw new Error("Image title is required (maximum 160 characters).");
     if (!album || album.length > 80)
