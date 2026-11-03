@@ -225,10 +225,10 @@
           ><label>Start date<input name="start" type="date" /></label
           ><label>End date<input name="end" type="date" /></label>
           <label
-            >Photo (JPG, PNG, WebP; max 5 MB)<input
+            >Photo (JPEG/JPG, PNG, WebP; max 5 MB)<input
               id="projectPhoto"
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           /></label>
           <div class="wide">
             <img
@@ -340,10 +340,10 @@
               required
           /></label>
           <label class="wide"
-            >Photos (JPG, PNG, WebP; up to 5 MB each)<input
+            >Photos (JPEG/JPG, PNG, WebP; up to 5 MB each)<input
               id="galleryPhotos"
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
               multiple
           /></label>
           <div class="wide">
@@ -383,6 +383,18 @@
         noticePdfUploading = false,
         galleryUploading = false;
       const $ = (id) => document.getElementById(id);
+      function imageMimeType(file) {
+        const extension = file.name.split(".").pop().toLowerCase();
+        const mimeType =
+          file.type ||
+          ({ jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png" }[
+            extension
+          ] ||
+            "");
+        return ["image/jpeg", "image/png", "image/webp"].includes(mimeType)
+          ? mimeType
+          : "";
+      }
       const E = (value) =>
         String(value == null ? "" : value).replace(
           /[&<>"']/g,
@@ -795,9 +807,10 @@
           return;
         }
         const file = files[index];
+        const mimeType = imageMimeType(file);
         if (
           file.size > 5 * 1024 * 1024 ||
-          !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+          !mimeType
         ) {
           galleryUploading = false;
           message.textContent =
@@ -834,10 +847,12 @@
             .adminUploadGalleryImage(
               reader.result,
               file.name,
-              file.type,
+              mimeType,
               item.album,
             );
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(
+          file.type ? file : new Blob([file], { type: mimeType }),
+        );
       }
       function saveContent(event, type) {
         event.preventDefault();
@@ -904,12 +919,13 @@
       $("projectPhoto").addEventListener("change", function () {
         const file = this.files[0];
         if (!file) return;
+        const mimeType = imageMimeType(file);
         if (file.size > 5 * 1024 * 1024) {
           $("photoStatus").textContent = "Image must be 5 MB or smaller.";
           this.value = "";
           return;
         }
-        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        if (!mimeType) {
           $("photoStatus").textContent = "Choose a JPG, PNG, or WebP image.";
           this.value = "";
           return;
@@ -931,12 +947,14 @@
               $("photoStatus").textContent =
                 "Photo uploaded. It will be published when you save this project.";
             })
-            .adminUploadImage(reader.result, file.name, file.type);
+            .adminUploadImage(reader.result, file.name, mimeType);
         reader.onerror = () => {
           projectUploading = false;
           $("photoStatus").textContent = "Could not read the selected image.";
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(
+          file.type ? file : new Blob([file], { type: mimeType }),
+        );
       });
       function uploadPdfInput(inputId, type) {
         $(inputId).addEventListener("change", function () {
