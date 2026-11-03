@@ -1,25 +1,25 @@
 /* SITE IDENTITY and offline demo content. Live projects/notices load from the public Apps Script endpoint. */
 const SITE = {
-  mayor: "[Mayor Full Name]",
-  title: { en: "Mayor, Sample Municipality", ne: "नगरप्रमुख, नमुना नगरपालिका" },
+  mayor: "Bishal Regmi",
+  title: { en: "Budhinanda Municipality", ne: "नगरप्रमुख, Budhinanda नगरपालिका" },
   name: { en: "Office of the Mayor", ne: "नगरप्रमुखको कार्यालय" },
   office: {
     en: "Office of the Municipal Executive",
     ne: "नगर कार्यपालिकाको कार्यालय",
   },
   place: {
-    en: "[Province], [District], Nepal",
-    ne: "[प्रदेश], [जिल्ला], नेपाल",
+    en: "Sudurpacchim, Bajura, Nepal",
+    ne: "सुदूरपश्चिम, बाजुरा, नेपाल",
   },
-  address: "[Municipality Office Address]",
-  phone: "+977-XX-XXXXXX",
-  email: "info@example.gov.np",
+  address: "Budhinanda -2, Bajura, Nepal",
+  phone: "+977-9847592498",
+  email: "info@budhinanda.gov.np",
   hours: "Sun–Fri, 10:00 AM – 5:00 PM",
   wards: 9,
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbz9UzTsPtcjK4PCIF_aEjQ1odQNqUaSk7hLKZTXG6SapgOTntWWLnMsiBXKEeaSDhntWw/exec", // Deployment A (Anyone)
   ADMIN_URL: "https://script.google.com/macros/s/AKfycbyJUMbkWsIpkdBGH-FG0iiX9vflX4sFnz_xPvlhY7dWiCRSuFwDTO9LXt9nRVqZsL1L/exec", // Deployment B (Google login, admins only)
   ticker: [
-    "Welcome to the official website of the Mayor (demo content).",
+    "Welcome to the official website of the Mayor .",
     "Citizens can submit complaints and suggestions through Nagarik Voice.",
     "[Add latest announcement here]",
   ],
