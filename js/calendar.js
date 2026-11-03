@@ -36,12 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
     month: "numeric",
     day: "numeric",
   });
-  const timeFormat = new Intl.DateTimeFormat("en-GB", {
+  const timeFormat = new Intl.DateTimeFormat("en-US", {
     timeZone: zone,
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false,
+    hour12: true,
   });
   const formatNumber = (value) =>
     String(value).replace(/\d/g, (digit) => "०१२३४५६७८९"[Number(digit)]);

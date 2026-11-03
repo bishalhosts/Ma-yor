@@ -14,7 +14,7 @@ const cur =
 const pageUrl = (p) => (p === "index" ? "index.html" : `pages/${p}.html`);
 const imageUrl = (path) =>
   /^https?:\/\//i.test(path) ? path : `assets/images/${path}`;
-/* Theme: saved choice wins, otherwise follow the device setting. */
+/* Start every page in light mode; the toggle can still switch themes. */
 function setTheme(m) {
   document.documentElement.dataset.theme = m;
   localStorage.setItem("theme", m);
@@ -27,17 +27,14 @@ function setTheme(m) {
     );
   }
 }
-const initTheme = () =>
-  localStorage.getItem("theme") ||
-  (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light");
-document.documentElement.dataset.theme = initTheme();
+document.documentElement.dataset.theme = "light";
 function buildLayout() {
   const nav = NAV.map(
     ([p, k]) =>
       `<li><a href="${pageUrl(p)}" class="${cur === p ? "on" : ""}" data-i18n="${k}"></a></li>`,
   ).join("");
   document.getElementById("site-header").innerHTML =
-    `<div class="topbar"><div class="wrap"><img src="assets/images/logo.svg" alt="Logo"><div class="brand"><h1>${esc(SITE.mayor)}</h1><p data-site="title"></p><p data-site="place"></p></div>
+    `<div class="topbar"><div class="wrap"><a class="header-profile" href="${pageUrl("mayor")}" aria-label="About ${esc(SITE.mayor)}"><img src="assets/images/logo.svg" alt=""><div class="brand"><h1>${esc(SITE.mayor)}</h1><p data-site="title"></p><p data-site="place"></p></div></a>
  <div class="nepal-header-clock" aria-label="नेपाल समय"><span>नेपाल समय</span><strong id="headerNepalClock">--:--:--</strong><small>NPT · UTC+05:45</small></div>
  <div class="toplinks"><select id="langSel" aria-label="Language"><option value="en">English</option><option value="ne">नेपाली</option></select><button id="themeBtn" class="tbtn" type="button"></button></div></div></div>
  <div class="ticker" role="marquee"><span>${SITE.ticker.join(" &nbsp;•&nbsp; ")}</span></div>
